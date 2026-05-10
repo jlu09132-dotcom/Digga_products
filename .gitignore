@@ -1,20 +1,17 @@
-# Python
-
-**pycache**/
+# ── Python ───────────────────────────────────────────────────
+__pycache__/
 *.py[cod]
 *$py.class
 *.so
 
-# Django
-
+# ── Django ───────────────────────────────────────────────────
 *.log
 db.sqlite3
 db.sqlite3-journal
 /staticfiles/
 /static_collected/
 
-# Uploads / media
-
+# ── Uploads / Media ──────────────────────────────────────────
 /media/
 uploads/
 shop_logos/
@@ -22,53 +19,45 @@ kyc_docs/
 product_images/
 categories/
 
-# Environment
-
+# ── Environment  (NEVER commit these) ────────────────────────
 .env
 .env.local
 .env.*.local
 
-# Virtual env
-
+# ── Virtual env ───────────────────────────────────────────────
 venv/
 env/
 ENV/
 
-# IDE
-
+# ── IDE ───────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# Frontend
-
+# ── Frontend ──────────────────────────────────────────────────
 node_modules/
 npm-debug.log
 yarn-error.log
 
-# Testing
-
+# ── Testing ───────────────────────────────────────────────────
 .coverage
 htmlcov/
 .tox/
 .pytest_cache/
 .mypy_cache/
 
-# Secrets
-
+# ── Secrets ───────────────────────────────────────────────────
 *.key
 *.pem
 config/secrets.json
 
-# OS
-
+# ── OS ────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Backups
-
+# ── Backups ───────────────────────────────────────────────────
 *.bak
 *.orig

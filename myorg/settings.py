@@ -1,11 +1,27 @@
+import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY   = 'django-insecure-change-this-in-production-digga2025'
-DEBUG        = True
-ALLOWED_HOSTS = ['*']
+# ─────────────────────────── Core ────────────────────────────
+
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "66ulpb-7@p)5tj$3@z6mn8a*&vctdsnm!t78dbx2xp^otzufg5"
+)
+
+DEBUG = os.getenv("DEBUG", "False") == "True"
+
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1"
+).split(",")
+
+# ─────────────────────────── Apps ────────────────────────────
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -21,9 +37,12 @@ INSTALLED_APPS = [
     'myapp',
 ]
 
+# ─────────────────────────── Middleware ──────────────────────
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',        # serves static files on Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -51,17 +70,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myorg.wsgi.application'
 
+# ─────────────────────────── Database ────────────────────────
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'digga_market',
-        'USER': 'root',
-        'PASSWORD': 'prithvee',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-        'OPTIONS': {'charset': 'utf8mb4'},
+        'ENGINE':   'django.db.backends.mysql',
+        'NAME':     os.getenv('DB_NAME',     'digga_market'),
+        'USER':     os.getenv('DB_USER',     'root'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'prithvee'),
+        'HOST':     os.getenv('DB_HOST',     '127.0.0.1'),
+        'PORT':     os.getenv('DB_PORT',     '3306'),
+        'OPTIONS':  {'charset': 'utf8mb4'},
     }
 }
+
+# ─────────────────────────── Password Validators ─────────────
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -70,19 +93,28 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# ─────────────────────────── Localisation ────────────────────
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE     = 'Asia/Kolkata'
 USE_I18N      = True
 USE_TZ        = True
 
+# ─────────────────────────── Static & Media ──────────────────
+
 STATIC_URL       = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'frontend' / 'static']
 STATIC_ROOT      = BASE_DIR / 'staticfiles'
 
-MEDIA_URL  = '/media/'
+# WhiteNoise — compresses and caches static files for production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL  = os.getenv('MEDIA_URL', '/media/')
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ─────────────────────────── DRF ─────────────────────────────
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -101,24 +133,62 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'myapp.utils.custom_exception_handler',
 }
 
+# ─────────────────────────── Simple JWT ──────────────────────
+
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME':  timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS':  True,
+    'ACCESS_TOKEN_LIFETIME':    timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME':   timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS':    True,
     'BLACKLIST_AFTER_ROTATION': True,
-    'AUTH_HEADER_TYPES':      ('Bearer',),
-    'USER_ID_FIELD':          'id',
-    'USER_ID_CLAIM':          'user_id',
+    'AUTH_HEADER_TYPES':        ('Bearer',),
+    'USER_ID_FIELD':            'id',
+    'USER_ID_CLAIM':            'user_id',
 }
 
-CORS_ALLOW_ALL_ORIGINS  = True
-CORS_ALLOW_CREDENTIALS  = True
-CORS_ALLOW_HEADERS      = [
+# ─────────────────────────── CORS ────────────────────────────
+
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = os.getenv(
+        'CORS_ALLOWED_ORIGINS',
+        'http://localhost:3000'
+    ).split(',')
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
     'accept', 'accept-encoding', 'authorization',
     'content-type', 'dnt', 'origin', 'user-agent',
     'x-csrftoken', 'x-requested-with',
 ]
 
-# Max upload size: 10 MB
+# ─────────────────────────── Security (production only) ──────
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER        = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT            = True
+    SESSION_COOKIE_SECURE          = True
+    CSRF_COOKIE_SECURE             = True
+    SECURE_HSTS_SECONDS            = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD            = True
+    SECURE_CONTENT_TYPE_NOSNIFF    = True
+
+# ─────────────────────────── Upload limits ───────────────────
+
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+# ─────────────────────────── Logging ─────────────────────────
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'},
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO' if not DEBUG else 'DEBUG',
+    },
+}
