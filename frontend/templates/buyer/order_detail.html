@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Order Details | Digga{% endblock %}
+
+{% block content %}
+<div class="page-padding" style="max-width:800px;margin:0 auto">
+  <a href="/orders/" class="btn btn-ghost btn-sm" style="margin-bottom:1.5rem;display:inline-flex">
+    ← Back to Orders
+  </a>
+  <div id="orderDetailContainer">
+    <div class="card" style="padding:1.5rem">
+      <div class="skeleton skeleton-title" style="width:50%;margin-bottom:1rem"></div>
+      <div class="skeleton skeleton-text"  style="width:30%;margin-bottom:2rem"></div>
+      <div class="skeleton" style="height:120px;margin-bottom:1rem"></div>
+      <div class="skeleton" style="height:60px"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/order-detail.js"></script>
+<script>
+requireAuth();
+requireRole('buyer');
+loadOrderDetail();
+loadCartCount();
+</script>
+{% endblock %}

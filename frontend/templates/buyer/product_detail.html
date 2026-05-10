@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Product | Digga{% endblock %}
+
+{% block content %}
+<div class="page-padding">
+  <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;color:var(--text-2);margin-bottom:1.5rem">
+    <a href="/products/" style="color:var(--text-2);hover:color:var(--text-1)">Marketplace</a>
+    <span>›</span>
+    <span id="breadcrumbName" style="color:var(--text-1)">Product</span>
+  </div>
+
+  <div id="productDetailContainer">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:start">
+      <div class="skeleton skeleton-card" style="height:420px"></div>
+      <div>
+        <div class="skeleton skeleton-title" style="width:80%;margin-bottom:1rem"></div>
+        <div class="skeleton skeleton-text" style="width:40%;margin-bottom:0.5rem"></div>
+        <div class="skeleton skeleton-text" style="width:60%;margin-bottom:0.5rem"></div>
+        <div class="skeleton skeleton-text" style="width:90%;margin-bottom:0.5rem"></div>
+        <div class="skeleton skeleton-text" style="width:75%"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/product-detail.js"></script>
+<script>
+  (function init() {
+    if (typeof requireAuth === 'undefined') {
+      setTimeout(init, 100);
+      return;
+    }
+    requireAuth();
+    requireRole('buyer');
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof loadProductDetail === 'function' && typeof loadCartCount === 'function') {
+        loadProductDetail();
+        loadCartCount();
+      } else {
+        console.error('product-detail.js not loaded correctly');
+      }
+    });
+  })();
+</script>
+{% endblock %}

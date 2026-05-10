@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Checkout | Digga{% endblock %}
+
+{% block content %}
+<div class="page-padding" style="max-width:900px;margin:0 auto">
+  <div class="page-header">
+    <h1 class="page-title">Checkout</h1>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:1.5rem;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:1.25rem">
+      <div class="card" style="padding:1.5rem">
+        <h3 class="section-title-sm">📦 Shipping Address</h3>
+        <div class="input-group">
+          <label class="input-label">Delivery Address</label>
+          <textarea id="shippingAddress" class="input" rows="3" placeholder="Enter your full delivery address including city, state and PIN code" required style="resize:none"></textarea>
+        </div>
+      </div>
+
+      <div class="card" style="padding:1.5rem">
+        <h3 class="section-title-sm">💳 Payment Method</h3>
+        <div style="display:flex;flex-direction:column;gap:0.625rem" id="paymentOptions">
+          <label class="payment-option" style="display:flex;align-items:center;gap:0.875rem;padding:1rem;border:1px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:all 0.2s">
+            <input type="radio" name="paymentMethod" value="cod" checked style="accent-color:var(--primary)">
+            <span style="font-size:1.25rem">💵</span>
+            <div>
+              <div style="font-weight:600;font-size:0.9rem">Cash on Delivery</div>
+              <div style="font-size:0.78rem;color:var(--text-2)">Pay when your order arrives</div>
+            </div>
+          </label>
+          <label class="payment-option" style="display:flex;align-items:center;gap:0.875rem;padding:1rem;border:1px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:all 0.2s">
+            <input type="radio" name="paymentMethod" value="upi" style="accent-color:var(--primary)">
+            <span style="font-size:1.25rem">📱</span>
+            <div>
+              <div style="font-weight:600;font-size:0.9rem">UPI</div>
+              <div style="font-size:0.78rem;color:var(--text-2)">GPay, PhonePe, Paytm etc.</div>
+            </div>
+          </label>
+          <label class="payment-option" style="display:flex;align-items:center;gap:0.875rem;padding:1rem;border:1px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:all 0.2s">
+            <input type="radio" name="paymentMethod" value="card" style="accent-color:var(--primary)">
+            <span style="font-size:1.25rem">💳</span>
+            <div>
+              <div style="font-weight:600;font-size:0.9rem">Credit / Debit Card</div>
+              <div style="font-size:0.78rem;color:var(--text-2)">Visa, Mastercard, RuPay</div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:1.5rem;position:sticky;top:calc(var(--nav-h) + 1rem)">
+      <h3 class="section-title-sm">Order Summary</h3>
+      <div id="orderSummary" style="font-size:0.875rem;display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem"></div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;font-family:var(--font-display);font-size:1.25rem;font-weight:800;margin:1rem 0">
+        <span>Total</span>
+        <span class="gradient-text" id="checkoutTotal">₹0</span>
+      </div>
+      <button type="button" id="placeOrderBtn" class="btn btn-primary btn-full btn-lg">Place Order</button>
+      <p style="font-size:0.75rem;color:var(--text-3);text-align:center;margin-top:0.75rem">
+        By placing your order you agree to our Terms & Conditions
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/checkout.js"></script>
+<script>
+  (function init() {
+    if (typeof requireAuth === 'undefined') {
+      setTimeout(init, 100);
+      return;
+    }
+    requireAuth();
+    requireRole('buyer');
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof loadCheckout === 'function' && typeof loadCartCount === 'function') {
+        loadCheckout();
+        loadCartCount();
+      } else {
+        console.error('checkout.js not loaded correctly');
+      }
+    });
+  })();
+</script>
+{% endblock %}

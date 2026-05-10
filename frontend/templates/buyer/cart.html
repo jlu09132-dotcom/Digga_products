@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Shopping Cart | Digga{% endblock %}
+
+{% block content %}
+<div class="page-padding" style="max-width:960px;margin:0 auto">
+  <div class="page-header">
+    <h1 class="page-title">Shopping Cart</h1>
+    <span id="cartItemCount" style="color:var(--text-2);font-size:0.875rem"></span>
+  </div>
+
+  <div id="cartEmptyState" style="display:none">
+    <div class="empty-state">
+      <div class="empty-icon">🛒</div>
+      <div class="empty-title">Your cart is empty</div>
+      <div class="empty-desc">Add items from the marketplace to get started</div>
+      <a href="/products/" class="btn btn-primary" style="margin-top:1rem">Browse Products</a>
+    </div>
+  </div>
+
+  <div id="cartGrid" style="display:grid;grid-template-columns:1fr 340px;gap:1.5rem;align-items:start">
+    <div id="cartItems" style="display:flex;flex-direction:column;gap:1rem"></div>
+    <div class="card" style="padding:1.5rem;position:sticky;top:calc(var(--nav-h) + 1rem)">
+      <h3 class="section-title-sm">Order Summary</h3>
+      <div id="cartSummaryDetails" style="display:flex;flex-direction:column;gap:0.625rem;margin-bottom:1.25rem;font-size:0.875rem"></div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;font-family:var(--font-display);font-size:1.25rem;font-weight:800;margin-bottom:1.25rem">
+        <span>Total</span>
+        <span class="gradient-text" id="cartTotal">₹0</span>
+      </div>
+      <a href="/checkout/" id="checkoutBtn" class="btn btn-primary btn-full btn-lg" style="text-align:center">
+        Proceed to Checkout
+      </a>
+      <a href="/products/" class="btn btn-ghost btn-full btn-sm" style="margin-top:0.75rem;text-align:center">
+        ← Continue Shopping
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/cart.js"></script>
+<script>
+requireAuth();
+requireRole('buyer');
+loadCart();
+loadCartCount();
+</script>
+{% endblock %}

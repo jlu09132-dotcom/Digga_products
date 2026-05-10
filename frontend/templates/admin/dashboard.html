@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard | Digga{% endblock %}
+
+{% block content %}
+<div class="page-padding">
+  <div style="margin-bottom:2rem">
+    <h1 class="page-title">Admin Dashboard</h1>
+    <p style="color:var(--text-2);margin-top:0.25rem">Platform overview and moderation center</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem" id="adminStats"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1rem">
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <h2 class="section-title" style="margin:0">Pending Verifications</h2>
+        <a href="/admin/suppliers/" class="btn btn-ghost btn-sm">View all →</a>
+      </div>
+      <div id="pendingSuppliers" style="display:flex;flex-direction:column;gap:0.75rem"></div>
+    </div>
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <h2 class="section-title" style="margin:0">Recent Orders</h2>
+        <a href="/admin/orders/" class="btn btn-ghost btn-sm">View all →</a>
+      </div>
+      <div id="recentOrders" style="display:flex;flex-direction:column;gap:0.75rem"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/admin-dashboard.js"></script>
+<script>
+requireAuth();
+requireRole('admin');
+loadAdminDashboard();
+</script>
+{% endblock %}

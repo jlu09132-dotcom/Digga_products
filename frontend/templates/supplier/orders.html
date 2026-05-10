@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Incoming Orders | Digga{% endblock %}
+
+{% block content %}
+<div class="page-padding">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Incoming Orders</h1>
+      <p style="color:var(--text-2);margin-top:0.25rem">Manage and update your customer orders</p>
+    </div>
+  </div>
+  <div class="tabs" id="orderTabs">
+    <button class="tab-btn active" data-status="">All</button>
+    <button class="tab-btn" data-status="pending">Pending</button>
+    <button class="tab-btn" data-status="confirmed">Confirmed</button>
+    <button class="tab-btn" data-status="processing">Processing</button>
+    <button class="tab-btn" data-status="shipped">Shipped</button>
+    <button class="tab-btn" data-status="delivered">Delivered</button>
+  </div>
+  <div id="supplierOrdersList" style="display:flex;flex-direction:column;gap:1rem"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/supplier-orders.js"></script>
+<script>
+requireAuth();
+requireRole('supplier');
+loadSupplierOrders();
+
+document.querySelectorAll('#orderTabs .tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('#orderTabs .tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        loadSupplierOrders(btn.dataset.status);
+    });
+});
+</script>
+{% endblock %}

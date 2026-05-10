@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Marketplace | Digga{% endblock %}
+
+{% block content %}
+<div class="page-padding">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Marketplace</h1>
+      <p style="color:var(--text-2);margin-top:0.25rem">Discover premium construction materials</p>
+    </div>
+    <div class="search-input-wrap" style="flex:0 1 320px">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" class="input" placeholder="Search products…" style="border-radius:999px;padding-left:2.5rem">
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <select id="categoryFilter" class="input" style="width:auto;min-width:160px">
+      <option value="">All Categories</option>
+    </select>
+    <div style="display:flex;align-items:center;gap:0.5rem">
+      <input type="number" id="minPrice" class="input" placeholder="Min ₹" style="width:110px">
+      <span style="color:var(--text-3)">–</span>
+      <input type="number" id="maxPrice" class="input" placeholder="Max ₹" style="width:110px">
+    </div>
+    <select id="sortFilter" class="input" style="width:auto;min-width:150px">
+      <option value="">Sort by Default</option>
+      <option value="price_asc">Price: Low → High</option>
+      <option value="price_desc">Price: High → Low</option>
+      <option value="newest">Newest First</option>
+    </select>
+    <button id="applyFilters" class="btn btn-primary btn-sm">Apply Filters</button>
+    <button id="resetFilters" class="btn btn-ghost btn-sm">Reset</button>
+    <span id="resultCount" style="margin-left:auto;font-size:0.8rem;color:var(--text-2)"></span>
+  </div>
+
+  <div id="productList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.25rem"></div>
+  <div id="pagination" style="display:flex;justify-content:center;align-items:center;gap:0.5rem;margin-top:2.5rem;flex-wrap:wrap"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/products.js"></script>
+<script>
+  (function init() {
+    if (typeof requireAuth === 'undefined') {
+      console.warn('Auth not ready, retrying in 100ms');
+      setTimeout(init, 100);
+      return;
+    }
+    requireAuth();
+    requireRole('buyer');
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof loadProducts === 'function' && typeof loadCategories === 'function' && typeof loadCartCount === 'function') {
+        loadProducts();
+        loadCategories();
+        loadCartCount();
+      } else {
+        console.error('Missing required functions – check if products.js is loaded');
+      }
+    });
+  })();
+</script>
+{% endblock %}

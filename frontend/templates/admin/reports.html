@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Reports | Digga Admin{% endblock %}
+
+{% block content %}
+<div class="page-padding">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Analytics &amp; Reports</h1>
+      <p style="color:var(--text-2);margin-top:0.25rem">Platform performance insights</p>
+    </div>
+    <button onclick="exportReport()" class="btn btn-secondary btn-sm">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Export CSV
+    </button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem" id="reportStats"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem">
+    <div class="card" style="padding:1.5rem">
+      <h3 class="section-title-sm">Revenue Over Time</h3>
+      <div id="revenueChart" style="height:200px;display:flex;align-items:flex-end;gap:4px;padding-top:1rem"></div>
+    </div>
+    <div class="card" style="padding:1.5rem">
+      <h3 class="section-title-sm">Orders by Status</h3>
+      <div id="statusChart" style="height:200px;display:flex;align-items:center;justify-content:center"></div>
+    </div>
+  </div>
+  <div class="card" style="padding:1.5rem">
+    <h3 class="section-title-sm" style="margin-bottom:1rem">Top Selling Products</h3>
+    <div class="table-wrap" style="border:none">
+      <table class="table">
+        <thead><tr><th>#</th><th>Product</th><th>Supplier</th><th>Orders</th><th>Revenue</th></tr></thead>
+        <tbody id="topProductsTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/admin-reports.js"></script>
+<script>
+requireAuth();
+requireRole('admin');
+loadReports();
+</script>
+{% endblock %}

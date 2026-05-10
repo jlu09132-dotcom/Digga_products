@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}All Orders | Digga Admin{% endblock %}
+
+{% block content %}
+<div class="page-padding">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">All Orders</h1>
+      <p style="color:var(--text-2);margin-top:0.25rem">Platform-wide order management</p>
+    </div>
+  </div>
+  <div class="tabs" id="adminOrderTabs">
+    <button class="tab-btn active" data-status="">All</button>
+    <button class="tab-btn" data-status="pending">Pending</button>
+    <button class="tab-btn" data-status="processing">Processing</button>
+    <button class="tab-btn" data-status="shipped">Shipped</button>
+    <button class="tab-btn" data-status="delivered">Delivered</button>
+    <button class="tab-btn" data-status="cancelled">Cancelled</button>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Order ID</th><th>Buyer</th><th>Supplier</th>
+          <th>Items</th><th>Total</th><th>Status</th><th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="ordersList"></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/admin-orders.js"></script>
+<script>
+requireAuth();
+requireRole('admin');
+loadOrders();
+
+document.querySelectorAll('#adminOrderTabs .tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('#adminOrderTabs .tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        loadOrders(btn.dataset.status);
+    });
+});
+</script>
+{% endblock %}

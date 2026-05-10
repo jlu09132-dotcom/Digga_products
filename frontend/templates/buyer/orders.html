@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}My Orders | Digga{% endblock %}
+
+{% block content %}
+<div class="page-padding">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">My Orders</h1>
+      <p style="color:var(--text-2);margin-top:0.25rem">Track and manage all your purchases</p>
+    </div>
+  </div>
+
+  <div class="tabs" id="orderStatusTabs">
+    <button class="tab-btn active" data-status="">All Orders</button>
+    <button class="tab-btn" data-status="pending">Pending</button>
+    <button class="tab-btn" data-status="processing">Processing</button>
+    <button class="tab-btn" data-status="shipped">Shipped</button>
+    <button class="tab-btn" data-status="delivered">Delivered</button>
+    <button class="tab-btn" data-status="cancelled">Cancelled</button>
+  </div>
+
+  <div id="ordersList" style="display:flex;flex-direction:column;gap:1rem"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/orders.js"></script>
+<script>
+  (function init() {
+    if (typeof requireAuth === 'undefined') {
+      setTimeout(init, 100);
+      return;
+    }
+    requireAuth();
+    requireRole('buyer');
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof loadBuyerOrders === 'function' && typeof loadCartCount === 'function') {
+        loadBuyerOrders();
+        loadCartCount();
+        document.querySelectorAll('#orderStatusTabs .tab-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            document.querySelectorAll('#orderStatusTabs .tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            loadBuyerOrders(this.dataset.status);
+          });
+        });
+      } else {
+        console.error('orders.js not loaded correctly');
+      }
+    });
+  })();
+</script>
+{% endblock %}

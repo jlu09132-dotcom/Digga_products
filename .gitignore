@@ -1,0 +1,74 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*$py.class
+*.so
+
+# Django
+
+*.log
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/static_collected/
+
+# Uploads / media
+
+/media/
+uploads/
+shop_logos/
+kyc_docs/
+product_images/
+categories/
+
+# Environment
+
+.env
+.env.local
+.env.*.local
+
+# Virtual env
+
+venv/
+env/
+ENV/
+
+# IDE
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Frontend
+
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Testing
+
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+.mypy_cache/
+
+# Secrets
+
+*.key
+*.pem
+config/secrets.json
+
+# OS
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backups
+
+*.bak
+*.orig

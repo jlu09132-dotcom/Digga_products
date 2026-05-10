@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Users | Digga Admin{% endblock %}
+
+{% block content %}
+<div class="page-padding">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">All Users</h1>
+      <p style="color:var(--text-2);margin-top:0.25rem">Manage buyers, suppliers and admins</p>
+    </div>
+  </div>
+  <div class="tabs" id="userTabs">
+    <button class="tab-btn active" data-role="buyers">Buyers</button>
+    <button class="tab-btn" data-role="suppliers">Suppliers</button>
+    <button class="tab-btn" data-role="admins">Admins</button>
+  </div>
+  <div id="usersList"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/admin-users.js"></script>
+<script>
+requireAuth();
+requireRole('admin');
+loadUsers('buyers');
+
+document.querySelectorAll('#userTabs .tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('#userTabs .tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        loadUsers(btn.dataset.role);
+    });
+});
+</script>
+{% endblock %}

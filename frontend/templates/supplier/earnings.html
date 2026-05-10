@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Earnings | Digga{% endblock %}
+
+{% block content %}
+<div class="page-padding">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Earnings</h1>
+      <p style="color:var(--text-2);margin-top:0.25rem">Track your revenue and payment history</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem" id="earningsSummary"></div>
+  <div>
+    <h2 class="section-title">Payment History</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr><th>Order ID</th><th>Date</th><th>Amount</th><th>Status</th></tr>
+        </thead>
+        <tbody id="earningsHistory"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/supplier-earnings.js"></script>
+<script>
+requireAuth();
+requireRole('supplier');
+loadEarnings();
+</script>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Suppliers | Digga Admin{% endblock %}
+
+{% block content %}
+<div class="page-padding">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Suppliers</h1>
+      <p style="color:var(--text-2);margin-top:0.25rem">Manage supplier accounts and verifications</p>
+    </div>
+  </div>
+  <div class="tabs" id="supplierTabs">
+    <button class="tab-btn active" data-status="">All</button>
+    <button class="tab-btn" data-status="pending">Pending</button>
+    <button class="tab-btn" data-status="verified">Verified</button>
+    <button class="tab-btn" data-status="rejected">Rejected</button>
+  </div>
+  <div id="suppliersList" style="display:flex;flex-direction:column;gap:1rem"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pages/admin-suppliers.js"></script>
+<script>
+requireAuth();
+requireRole('admin');
+loadSuppliers();
+
+document.querySelectorAll('#supplierTabs .tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('#supplierTabs .tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        loadSuppliers(btn.dataset.status);
+    });
+});
+</script>
+{% endblock %}

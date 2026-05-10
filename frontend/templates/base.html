@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Digga – Construction Marketplace{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { primary: '#7C3AED', primaryDark: '#6D28D9', secondary: '#10B981' } } }
+        }
+    </script>
+    <link href="/static/css/style.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div id="toast-container"></div>
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+    <div id="role-nav"></div>
+
+    <main id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Core scripts – MUST load before page‑specific code in extra_js -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/utils.js"></script>
+
+    <script>
+    /* ── Navbar / Sidebar Renderer ── */
+    const NAV_LINKS = {
+        buyer: [
+            { href: '/products/',        label: 'Marketplace',  icon: 'shopping-bag' },
+            { href: '/cart/',            label: 'Cart',         icon: 'shopping-cart', badge: 'cartCountNav' },
+            { href: '/orders/',          label: 'Orders',       icon: 'package' },
+            { href: '/wishlist/',        label: 'Wishlist',     icon: 'heart' },
+        ],
+        supplier: [
+            { href: '/supplier/dashboard/', label: 'Dashboard',     icon: 'layout-dashboard' },
+            { href: '/supplier/products/',  label: 'Products',      icon: 'package' },
+            { href: '/supplier/orders/',    label: 'Orders',        icon: 'shopping-cart' },
+            { href: '/supplier/earnings/',  label: 'Earnings',      icon: 'trending-up' },
+            { href: '/supplier/shop/',      label: 'Shop Settings', icon: 'store' },
+            { href: '/supplier/profile/',   label: 'Profile',       icon: 'user' },
+        ],
+        admin: [
+            { href: '/admin/dashboard/',  label: 'Dashboard',  icon: 'bar-chart-3' },
+            { href: '/admin/users/',      label: 'Users',      icon: 'users' },
+            { href: '/admin/suppliers/',  label: 'Suppliers',  icon: 'truck' },
+            { href: '/admin/products/',   label: 'Products',   icon: 'package' },
+            { href: '/admin/orders/',     label: 'Orders',     icon: 'shopping-bag' },
+            { href: '/admin/reports/',    label: 'Reports',    icon: 'file-bar-chart' },
+        ]
+    };
+
+    function getInitials(name) {
+        return (name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    function renderBuyerNav(name) {
+        const links = NAV_LINKS.buyer.map(l => {
+            const badge = l.badge ? `<span id="${l.badge}" class="cart-badge">0</span>` : '';
+            return `<a href="${l.href}" class="nav-link ${location.pathname === l.href ? 'active' : ''}">${l.label}${badge}</a>`;
+        }).join('');
+
+        return `
+        <nav class="top-nav">
+            <div class="nav-inner">
+                <div style="display:flex;align-items:center;gap:1.5rem">
+                    <a href="/buyer/dashboard/" class="nav-brand">Digga</a>
+                    <div class="nav-links hide-sm">${links}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.5rem">
+                    <div style="position:relative">
+                        <button class="user-menu-btn" onclick="toggleUserMenu()" id="userMenuBtn">
+                            <div class="user-avatar">${getInitials(name)}</div>
+                            <span class="hide-mobile">${name}</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                        <div class="dropdown" id="userMenuDropdown">
+                            <a href="/buyer/profile/" class="dropdown-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:0.5rem"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                                My Profile
+                            </a>
+                            <a href="/orders/" class="dropdown-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:0.5rem"><path d="M5 7h14M5 12h14M5 17h14"/></svg>
+                                My Orders
+                            </a>
+                            <div style="height:1px;background:var(--border);margin:0.375rem 0"></div>
+                            <button onclick="logout()" class="dropdown-item danger">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:0.5rem"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>`;
+    }
+
+    function renderSidebar(role, name) {
+        const links = NAV_LINKS[role].map(l => `
+            <a href="${l.href}" class="sidebar-link ${location.pathname.startsWith(l.href) ? 'active' : ''}">
+                <i data-lucide="${l.icon}" style="width:18px;height:18px;flex-shrink:0"></i>
+                <span>${l.label}</span>
+            </a>`).join('');
+
+        const roleLabel = role === 'supplier' ? 'Supplier Portal' : 'Admin Console';
+        const homeHref = role === 'supplier' ? '/supplier/dashboard/' : '/admin/dashboard/';
+
+        return `
+        <!-- Mobile top bar -->
+        <div class="mobile-topbar">
+            <button class="hamburger-btn" onclick="openSidebar()">
+                <span></span><span></span><span></span>
+            </button>
+            <a href="${homeHref}" class="nav-brand" style="font-size:1.25rem">Digga</a>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="appSidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">Digga</div>
+                <div class="sidebar-role-badge">${roleLabel}</div>
+            </div>
+            <nav class="sidebar-nav">${links}</nav>
+            <div class="sidebar-footer">
+                <div style="display:flex;align-items:center;gap:0.625rem;padding:0.5rem 0.875rem;margin-bottom:0.5rem">
+                    <div class="user-avatar" style="flex-shrink:0">${getInitials(name)}</div>
+                    <div style="flex:1;min-width:0">
+                        <div style="font-weight:600;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
+                        <div style="font-size:0.72rem;color:var(--text-3);text-transform:capitalize">${role}</div>
+                    </div>
+                </div>
+                <button onclick="logout()" class="sidebar-link" style="width:100%;color:#F87171;border:none;background:none;cursor:pointer">
+                    <i data-lucide="log-out" style="width:18px;height:18px"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>`;
+    }
+
+    function openSidebar()  { document.getElementById('appSidebar')?.classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); }
+    function closeSidebar() { document.getElementById('appSidebar')?.classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
+
+    function toggleUserMenu() {
+        const d = document.getElementById('userMenuDropdown');
+        d.classList.toggle('open');
+    }
+
+    document.addEventListener('click', (e) => {
+        const btn = document.getElementById('userMenuBtn');
+        const dd  = document.getElementById('userMenuDropdown');
+        if (dd && btn && !btn.contains(e.target) && !dd.contains(e.target)) {
+            dd.classList.remove('open');
+        }
+    });
+
+    function renderNavbar() {
+        if (typeof isAuthenticated === 'undefined' || !isAuthenticated()) return;
+        const role = getUserRole();
+        const name = getUserName();
+        const nav = document.getElementById('role-nav');
+        const main = document.getElementById('main-content');
+
+        if (role === 'buyer') {
+            nav.innerHTML = renderBuyerNav(name);
+        } else if (role === 'supplier' || role === 'admin') {
+            nav.innerHTML = renderSidebar(role, name);
+            main.classList.add('with-sidebar');
+            main.style.paddingTop = '0';
+        } else {
+            nav.innerHTML = `
+            <nav class="top-nav">
+                <div class="nav-inner">
+                    <a href="/" class="nav-brand">Digga</a>
+                    <div style="display:flex;gap:0.5rem">
+                        <a href="/login/" class="btn btn-ghost btn-sm">Login</a>
+                        <a href="/register/" class="btn btn-primary btn-sm">Register</a>
+                    </div>
+                </div>
+            </nav>`;
+        }
+
+        if (window.lucide) lucide.createIcons();
+
+        document.querySelectorAll('.sidebar-link').forEach(l => {
+            if (l.href && location.pathname.startsWith(new URL(l.href, location.origin).pathname)) {
+                l.classList.add('active');
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderNavbar();
+        if (typeof loadCartCount === 'function' && getUserRole() === 'buyer') {
+            loadCartCount();
+        }
+    });
+    </script>
+
+    <!-- Page‑specific scripts (executed after core scripts) -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
