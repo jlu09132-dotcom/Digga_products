@@ -1,21 +1,54 @@
 import os
+import dj_database_url
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
-# Load .env file from project root (where manage.py lives)
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
 # ─────────────────────────── Core ────────────────────────────
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-8@$x!q3&^6%2m#1p9*z7e5r4t6y8u0i-o=p[l]k;jhgfdsa")
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "66ulpb-7@p)5tj$3@z6mn8a*&vctdsnm!t78dbx2xp^otzufg5"
+)
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1"
+).split(",")
+
+# ─────────────────────────── Database ────────────────────────
+# On Render  → DATABASE_URL env var is set (PostgreSQL)
+# Locally    → falls back to your MySQL via individual DB_* vars
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
+    # Render PostgreSQL
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+else:
+    # Local MySQL
+    DATABASES = {
+        'default': {
+            'ENGINE':   'django.db.backends.mysql',
+            'NAME':     os.getenv('DB_NAME',     'digga_market'),
+            'USER':     os.getenv('DB_USER',     'root'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'prithvee'),
+            'HOST':     os.getenv('DB_HOST',     '127.0.0.1'),
+            'PORT':     os.getenv('DB_PORT',     '3306'),
+            'OPTIONS':  {'charset': 'utf8mb4'},
+        }
+    }
 
 # ─────────────────────────── Apps ────────────────────────────
 
@@ -66,36 +99,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myorg.wsgi.application'
 
-# ─────────────────────────── Database ────────────────────────
-# Priority:
-#   1. DATABASE_URL environment variable (Render)
-#   2. Individual DB_* environment variables
-#   3. Local fallback defaults (for development without .env)
-
-import dj_database_url
-
-# If DATABASE_URL is provided (Render does this automatically), use it.
-if os.getenv('DATABASE_URL'):
-    DATABASES = {
-        'default': dj_database_url.config(
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
-else:
-    # Otherwise, use individual settings with local fallbacks
-    DATABASES = {
-        'default': {
-            'ENGINE':   'django.db.backends.mysql',
-            'NAME':     os.getenv('DB_NAME',     'digga_market'),
-            'USER':     os.getenv('DB_USER',     'root'),
-            'PASSWORD': os.getenv('DB_PASSWORD', 'prithvee'),
-            'HOST':     os.getenv('DB_HOST',     '127.0.0.1'),
-            'PORT':     os.getenv('DB_PORT',     '3306'),
-            'OPTIONS':  {'charset': 'utf8mb4'},
-        }
-    }
-
 # ─────────────────────────── Password Validators ─────────────
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -117,7 +120,6 @@ USE_TZ        = True
 STATIC_URL       = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'frontend' / 'static']
 STATIC_ROOT      = BASE_DIR / 'staticfiles'
-
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL  = os.getenv('MEDIA_URL', '/media/')
@@ -163,7 +165,7 @@ if DEBUG:
 else:
     CORS_ALLOWED_ORIGINS = os.getenv(
         'CORS_ALLOWED_ORIGINS',
-        'https://your-app.onrender.com'
+        'http://localhost:3000'
     ).split(',')
 
 CORS_ALLOW_CREDENTIALS = True
